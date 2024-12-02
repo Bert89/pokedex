@@ -16,6 +16,7 @@ public class PokedexService : IPokedexService
         _pokemonApiClient = pokemonApiClient;
     }
 
+    /// <inheritdoc />
     public async Task<PokemonModel> GetPokemonAsync(string pokemonName)
     {
         try
@@ -32,12 +33,13 @@ public class PokedexService : IPokedexService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message, ex.InnerException);
+            _logger.LogError(ex.Message);
             throw;
         }
     }
 
 
+    /// <inheritdoc />
     public async Task<PokemonModel> GetTranslatedPokemonAsync(string pokemonName)
     {
         throw new NotImplementedException();
