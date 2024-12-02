@@ -1,0 +1,6 @@
+@Pokedex_HostAddress = http://localhost:5216
+
+GET {{Pokedex_HostAddress}}/pokedex/
+Accept: application/json
+
+###
