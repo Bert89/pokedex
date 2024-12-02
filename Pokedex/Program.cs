@@ -12,6 +12,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IPokedexService, PokedexService>();
 builder.Services.AddSingleton<IPokemonApiClient, PokemonApiClient>();
+builder.Services.AddSingleton<IYodaTranslatorService, YodaFunTranslatorService>();
+builder.Services.AddSingleton<IShakespeareTranslatorService, ShakespeareFunTranslatorService>();
+builder.Services.AddSingleton<ITranslatorServiceFactory, TranslatorServiceFactory>();
 
 var app = builder.Build();
 

@@ -8,12 +8,16 @@ namespace Pokedex.Services;
 public class PokedexService : IPokedexService
 {
     private readonly IPokemonApiClient _pokemonApiClient;
+    private readonly ITranslatorServiceFactory _translatorServiceFactory;
     private readonly ILogger<PokedexService> _logger;
 
-    public PokedexService(ILogger<PokedexService> logger, IPokemonApiClient pokemonApiClient)
+    public PokedexService(ILogger<PokedexService> logger, 
+        IPokemonApiClient pokemonApiClient,
+        ITranslatorServiceFactory translatorServiceFactory)
     {
         _logger = logger;
         _pokemonApiClient = pokemonApiClient;
+        _translatorServiceFactory = translatorServiceFactory;
     }
 
     /// <inheritdoc />
@@ -42,7 +46,27 @@ public class PokedexService : IPokedexService
     /// <inheritdoc />
     public async Task<PokemonModel> GetTranslatedPokemonAsync(string pokemonName)
     {
-        throw new NotImplementedException();
+        var pokemon = new PokemonModel();
+        try
+        {
+            pokemon = await GetPokemonAsync(pokemonName);
+
+            var translation = await _translatorServiceFactory
+                .Create(pokemon)
+                .TranslateAsync(pokemon.Description);
+
+            if (translation?.Contents == null)
+                throw new Exception("Impossible to read translation");
+
+            pokemon.Description = translation.Contents.Translated;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message, ex.InnerException);
+            pokemon.Error = $"Standard translation used due to error: {ex.Message}";
+        }
+
+        return pokemon;
     }
 
     private string ReadDescription(PokemonSpecies species)
