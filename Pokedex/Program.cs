@@ -11,6 +11,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IPokedexService, PokedexService>();
+builder.Services.AddSingleton<IPokemonApiClient, PokemonApiClient>();
 
 var app = builder.Build();
 
