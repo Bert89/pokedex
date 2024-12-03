@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework.Legacy;
 using PokeApiNet;
 using Pokedex.Interfaces;
@@ -14,6 +15,7 @@ namespace PokedexUnitTests.Services
         private Mock<ILogger<PokedexService>> _logger;
         private Mock<IPokemonApiClient> _pokemonApiClient;
         private Mock<ITranslatorServiceFactory> _translatorServiceFactory;
+        private Mock<ICacheService> _cacheService;
 
         [SetUp]
         public void Setup()
@@ -21,9 +23,12 @@ namespace PokedexUnitTests.Services
             _logger = new Mock<ILogger<PokedexService>>();
             _pokemonApiClient = new Mock<IPokemonApiClient>();
             _translatorServiceFactory = new Mock<ITranslatorServiceFactory>();
+            _cacheService = new Mock<ICacheService>();
+
             _sut = new PokedexService(_logger.Object, 
                 _pokemonApiClient.Object,
-                _translatorServiceFactory.Object);
+                _translatorServiceFactory.Object,
+                _cacheService.Object);
         }
 
         #region GetPokemonAsync
@@ -66,6 +71,8 @@ namespace PokedexUnitTests.Services
             ClassicAssert.AreEqual("HB", result.Habitat);
             ClassicAssert.IsFalse(result.IsLegendary);
             ClassicAssert.IsNull(result.Error);
+            _cacheService.Verify(x => x.GetAsync("myPokemon"), Times.Once);
+            _cacheService.Verify(x => x.SetAsync(result), Times.Once);
         }
 
         [Test]
@@ -111,6 +118,8 @@ namespace PokedexUnitTests.Services
             ClassicAssert.AreEqual("HB", result.Habitat);
             ClassicAssert.IsFalse(result.IsLegendary);
             ClassicAssert.IsNull(result.Error);
+            _cacheService.Verify(x => x.GetAsync("myPokemon"), Times.Once);
+            _cacheService.Verify(x => x.SetAsync(result), Times.Once);
         }
 
         [Test]
@@ -146,6 +155,8 @@ namespace PokedexUnitTests.Services
             ClassicAssert.AreEqual("HB", result.Habitat);
             ClassicAssert.IsFalse(result.IsLegendary);
             ClassicAssert.IsNull(result.Error);
+            _cacheService.Verify(x => x.GetAsync("myPokemon"), Times.Once);
+            _cacheService.Verify(x => x.SetAsync(result), Times.Once);
         }
 
         [Test]
@@ -181,6 +192,8 @@ namespace PokedexUnitTests.Services
             ClassicAssert.AreEqual("HB", result.Habitat);
             ClassicAssert.IsFalse(result.IsLegendary);
             ClassicAssert.IsNull(result.Error);
+            _cacheService.Verify(x => x.GetAsync("myPokemon"), Times.Once);
+            _cacheService.Verify(x => x.SetAsync(result), Times.Once);
         }
 
         [Test]
@@ -204,9 +217,67 @@ namespace PokedexUnitTests.Services
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);
+
+            _cacheService.Verify(x => x.GetAsync("fakePokemon"), Times.Once);
+            _cacheService.Verify(x => x.SetAsync(It.IsAny<PokemonModel>()), Times.Never);
+
+        }
+
+        [Test]
+        public void GetPokemonAsyncTwice_GetPokemonAsync_ReturnsCachedPokemonModel()
+        {
+            // Arrange
+            var species = new PokemonSpecies
+            {
+                Name = "myPokemon",
+                Habitat = new NamedApiResource<PokemonHabitat> { Name = "HB" },
+                IsLegendary = false,
+                FlavorTextEntries =
+                [
+                    new PokemonSpeciesFlavorTexts
+                    {
+                        FlavorText = "description\trow1\nrow2",
+                        Language = new NamedApiResource<Language> { Name = "en" }
+                    }
+                ]
+            };
+
+            _pokemonApiClient
+                .Setup(client => client.GetResourceAsync<PokemonSpecies>("myPokemon"))
+                .ReturnsAsync(species);
+
+            var firstModel = _sut.GetPokemonAsync("myPokemon").Result;
+
+            _cacheService
+                .Setup(x => x.GetAsync("myPokemon"))
+                .ReturnsAsync(JsonConvert.SerializeObject(firstModel));
+
+            // Act
+            var secondCall = _sut.GetPokemonAsync("myPokemon").Result;
+
+            // Assert
+            ClassicAssert.AreEqual(secondCall.Name, firstModel.Name);
+            ClassicAssert.AreEqual(secondCall.Description, firstModel.Description);
+            ClassicAssert.AreEqual(secondCall.Error, firstModel.Error);
+            ClassicAssert.AreEqual(secondCall.Habitat, firstModel.Habitat);
+            ClassicAssert.AreEqual(secondCall.IsLegendary, firstModel.IsLegendary);
+            _cacheService.Verify(x => x.GetAsync("myPokemon"), Times.Exactly(2));
+            _cacheService.Verify(x => x.SetAsync(It.IsAny<PokemonModel>()), Times.Once);
+            _pokemonApiClient.Verify(x => x.GetResourceAsync<PokemonSpecies>(It.IsAny<string>()), Times.Once);
+
+            _logger.Verify(
+                logger => logger.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((state, t) => state.ToString().Contains("Cached data for myPokemon")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
         }
 
         #endregion
+
+
 
         #region GetTranslatedPokemonAsync
 
@@ -267,9 +338,12 @@ namespace PokedexUnitTests.Services
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);
 
+            _cacheService.Verify(x => x.GetAsync("myPokemon"), Times.Once);
+            _cacheService.Verify(x => x.SetAsync(result), Times.Once);
+
+
         }
 
-        
         [Test]
         public void NoTranslationContentAvailable_GetTranslatedPokemonAsync_ReturnsDefaultDescription()
         {
@@ -331,6 +405,9 @@ namespace PokedexUnitTests.Services
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);
+
+            _cacheService.Verify(x => x.GetAsync("myPokemon"), Times.Once);
+            _cacheService.Verify(x => x.SetAsync(result), Times.Once);
 
         }
 
@@ -396,9 +473,10 @@ namespace PokedexUnitTests.Services
                     It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);
 
+            _cacheService.Verify(x => x.GetAsync("myPokemon"), Times.Once);
+            _cacheService.Verify(x => x.SetAsync(result), Times.Once);
+
         }
-
-
 
         [Test]
         public void TranslationAvailable_GetTranslatedPokemonAsync_ReturnsTranslatedDescription()
@@ -429,7 +507,7 @@ namespace PokedexUnitTests.Services
                 .ReturnsAsync(species);
 
             var translatorService = new Mock<ITranslatorService>();
-            var response = new FunTranslationResponse()
+            var response = new FunTranslationResponse
             {
                 Contents = new FunTranslationContents
                 {
@@ -458,6 +536,88 @@ namespace PokedexUnitTests.Services
             ClassicAssert.AreEqual("HB", result.Habitat);
             ClassicAssert.IsNull(result.Error);
             ClassicAssert.IsFalse(result.IsLegendary);
+            _cacheService.Verify(x => x.GetAsync("myPokemon"), Times.Once);
+            _cacheService.Verify(x => x.SetAsync(result), Times.Once);
+
+        }
+
+        [Test]
+        public void GetTranslatedPokemonAsyncTwice_GetTranslatedPokemonAsync_ReturnsCachedPokemonModel()
+        {
+            // Arrange
+            var species = new PokemonSpecies
+            {
+                Name = "myPokemon",
+                Habitat = new NamedApiResource<PokemonHabitat> { Name = "HB" },
+                IsLegendary = false,
+                FlavorTextEntries =
+                [
+                    new PokemonSpeciesFlavorTexts
+                    {
+                        FlavorText = "descriptionIT",
+                        Language = new NamedApiResource<Language> { Name = "it" }
+                    },
+                    new PokemonSpeciesFlavorTexts
+                    {
+                        FlavorText = "descriptionEN",
+                        Language = new NamedApiResource<Language> { Name = "en" }
+                    }
+                ]
+            };
+
+            _pokemonApiClient
+                .Setup(client => client.GetResourceAsync<PokemonSpecies>("myPokemon"))
+                .ReturnsAsync(species);
+
+            var translatorService = new Mock<ITranslatorService>();
+            var response = new FunTranslationResponse
+            {
+                Contents = new FunTranslationContents
+                {
+                    Translated = "translatedDesc"
+                }
+            };
+            translatorService
+                .Setup(x => x.TranslateAsync("descriptionEN"))
+                .ReturnsAsync(response);
+
+            _translatorServiceFactory
+                .Setup(x => x.Create(
+                    It.Is<PokemonModel>(y => y.Name == "myPokemon" &&
+                                             y.Description == "translatedDesc" &&
+                                             y.Habitat == "HB" &&
+                                             !y.IsLegendary)))
+                .Returns(translatorService.Object);
+
+            var firstModel = _sut.GetTranslatedPokemonAsync("myPokemon").Result;
+
+            _cacheService
+                .Setup(x => x.GetAsync("myPokemon"))
+                .ReturnsAsync(JsonConvert.SerializeObject(firstModel));
+
+            // Act
+            var secondCall = _sut.GetTranslatedPokemonAsync("myPokemon").Result;
+
+            // Assert
+            ClassicAssert.AreEqual(secondCall.Name, firstModel.Name);
+            ClassicAssert.AreEqual(secondCall.Description, firstModel.Description);
+            ClassicAssert.AreEqual(secondCall.Error, firstModel.Error);
+            ClassicAssert.AreEqual(secondCall.Habitat, firstModel.Habitat);
+            ClassicAssert.AreEqual(secondCall.IsLegendary, firstModel.IsLegendary);
+
+            _cacheService.Verify(x => x.GetAsync("myPokemon"), Times.Exactly(2));
+            _cacheService.Verify(x => x.SetAsync(It.IsAny<PokemonModel>()), Times.Once);
+            _pokemonApiClient.Verify(x => x.GetResourceAsync<PokemonSpecies>(It.IsAny<string>()), Times.Once);
+
+            _logger.Verify(
+                logger => logger.Log(
+                    LogLevel.Information,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((state, t) => state.ToString().Contains("Cached data for myPokemon")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
+
         }
 
         #endregion

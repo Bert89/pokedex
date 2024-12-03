@@ -15,6 +15,9 @@ builder.Services.AddSingleton<IPokemonApiClient, PokemonApiClient>();
 builder.Services.AddSingleton<IYodaTranslatorService, YodaFunTranslatorService>();
 builder.Services.AddSingleton<IShakespeareTranslatorService, ShakespeareFunTranslatorService>();
 builder.Services.AddSingleton<ITranslatorServiceFactory, TranslatorServiceFactory>();
+builder.Services.AddSingleton<ICacheService, CacheService>();
+
+builder.Services.AddDistributedMemoryCache();
 
 var app = builder.Build();
 

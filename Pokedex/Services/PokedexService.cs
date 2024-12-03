@@ -1,3 +1,4 @@
+using Newtonsoft.Json;
 using PokeApiNet;
 using Pokedex.Interfaces;
 using Pokedex.Models;
@@ -10,14 +11,17 @@ public class PokedexService : IPokedexService
     private readonly IPokemonApiClient _pokemonApiClient;
     private readonly ITranslatorServiceFactory _translatorServiceFactory;
     private readonly ILogger<PokedexService> _logger;
+    private readonly ICacheService _cacheService;
 
     public PokedexService(ILogger<PokedexService> logger, 
         IPokemonApiClient pokemonApiClient,
-        ITranslatorServiceFactory translatorServiceFactory)
+        ITranslatorServiceFactory translatorServiceFactory, 
+        ICacheService cacheService)
     {
         _logger = logger;
         _pokemonApiClient = pokemonApiClient;
         _translatorServiceFactory = translatorServiceFactory;
+        _cacheService = cacheService;
     }
 
     /// <inheritdoc />
@@ -25,15 +29,25 @@ public class PokedexService : IPokedexService
     {
         try
         {
+            var cachedPokemon = await _cacheService.GetAsync(pokemonName);
+            if (!string.IsNullOrWhiteSpace(cachedPokemon))
+            {
+                _logger.LogInformation($"Cached data for {pokemonName}");
+                return JsonConvert.DeserializeObject<PokemonModel>(cachedPokemon);
+            }
+
             var pokemon = await _pokemonApiClient.GetResourceAsync<PokemonSpecies>(pokemonName);
 
-            return new PokemonModel
+            var pokemonModel = new PokemonModel
             {
                 Name = pokemon.Name,
                 Description = ReadDescription(pokemon),
                 Habitat = pokemon.Habitat.Name,
                 IsLegendary = pokemon.IsLegendary
             };
+
+            await _cacheService.SetAsync(pokemonModel);
+            return pokemonModel;
         }
         catch (Exception ex)
         {
