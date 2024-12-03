@@ -7,14 +7,15 @@ namespace Pokedex.Services;
 public abstract class FunTranslatorServiceBase
 {
     protected readonly ILogger<FunTranslatorServiceBase> TranslatorLogger;
+    private readonly string _translator;
     protected readonly HttpClient HttpClient;
     private const string BaseAddress = "https://api.funtranslations.com/translate/";
 
     protected FunTranslatorServiceBase(ILogger<FunTranslatorServiceBase> translatorLogger, string translator)
     {
         TranslatorLogger = translatorLogger;
+        _translator = translator;
         HttpClient = new HttpClient();
-        HttpClient.BaseAddress = new Uri($"{BaseAddress}{translator}");
     }
 
     public virtual async Task<FunTranslationResponse> TranslateAsync(string description) 
@@ -23,7 +24,7 @@ public abstract class FunTranslatorServiceBase
         {
             var payload = new { text = description };
             var jsonContent = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
-            var response = await HttpClient.PostAsync(HttpClient.BaseAddress, jsonContent);
+            var response = await HttpClient.PostAsync($"{BaseAddress}{_translator}", jsonContent);
             response.EnsureSuccessStatusCode();
             var responseContent = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<FunTranslationResponse>(responseContent);
