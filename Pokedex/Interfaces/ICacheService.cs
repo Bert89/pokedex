@@ -5,5 +5,5 @@ namespace Pokedex.Interfaces;
 public interface ICacheService
 {
     Task<string> GetAsync(string pokemonName);
-    Task SetAsync(PokemonModel pokemonModel);
+    Task<string> SetAsync(PokemonModel pokemonModel);
 }

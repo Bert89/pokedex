@@ -1,30 +1,31 @@
+using System.Text;
 using Newtonsoft.Json;
 using Pokedex.Models;
-using System.Text;
 
 namespace Pokedex.Services;
 
 public abstract class FunTranslatorServiceBase
 {
-    protected readonly ILogger<FunTranslatorServiceBase> TranslatorLogger;
-    private readonly string _translator;
-    protected readonly HttpClient HttpClient;
     private const string BaseAddress = "https://api.funtranslations.com/translate/";
+    private readonly HttpClient _httpClient;
+    private readonly string _translator;
+    protected readonly ILogger<FunTranslatorServiceBase> TranslatorLogger;
 
     protected FunTranslatorServiceBase(ILogger<FunTranslatorServiceBase> translatorLogger, string translator)
     {
         TranslatorLogger = translatorLogger;
         _translator = translator;
-        HttpClient = new HttpClient();
+        _httpClient = new HttpClient();
     }
 
-    public virtual async Task<FunTranslationResponse> TranslateAsync(string description) 
+    public virtual async Task<FunTranslationResponse> TranslateAsync(string description)
     {
         try
         {
             var payload = new { text = description };
-            var jsonContent = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
-            var response = await HttpClient.PostAsync($"{BaseAddress}{_translator}", jsonContent);
+            var jsonContent =
+                new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{BaseAddress}{_translator}", jsonContent);
             response.EnsureSuccessStatusCode();
             var responseContent = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<FunTranslationResponse>(responseContent);

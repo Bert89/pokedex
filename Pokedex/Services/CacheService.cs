@@ -19,9 +19,10 @@ public class CacheService : ICacheService
         return await _distributedCache.GetStringAsync(pokemonName);
     }
 
-    public async Task SetAsync(PokemonModel pokemonModel)
+    public async Task<string> SetAsync(PokemonModel pokemonModel)
     {
         var serializedPokemon = JsonConvert.SerializeObject(pokemonModel);
         await _distributedCache.SetStringAsync(pokemonModel.Name, serializedPokemon);
+        return pokemonModel.Name;
     }
 }

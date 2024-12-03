@@ -13,13 +13,12 @@ public class TranslatorServiceFactory : ITranslatorServiceFactory
     {
         _yodaTranslatorService = yodaTranslatorService;
         _shakespeareTranslatorService = shakespeareTranslatorService;
-
     }
 
 
     public ITranslatorService Create(PokemonModel pokemonModel)
     {
-        return pokemonModel.IsLegendary || pokemonModel.Habitat == "cave"
+        return pokemonModel != null && (pokemonModel.IsLegendary || pokemonModel.Habitat == "cave")
             ? _yodaTranslatorService
             : _shakespeareTranslatorService;
     }

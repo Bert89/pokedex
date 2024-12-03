@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pokedex", "Pokedex\Pokedex.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PokedexUnitTests", "PokedexUnitTests\PokedexUnitTests.csproj", "{4A07E49F-1752-4ADC-A9B0-79FB44F664AE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{352D6BCA-88E0-4935-89A2-D75F0FAA5A32}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4A07E49F-1752-4ADC-A9B0-79FB44F664AE} = {352D6BCA-88E0-4935-89A2-D75F0FAA5A32}
 	EndGlobalSection
 EndGlobal
