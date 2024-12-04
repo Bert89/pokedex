@@ -96,7 +96,7 @@ Otherwise, the response will be:
 ```
 
 ## Miscellaneous
-1. All git history was exported and available in [gitlog.txt](https://github.com/Bert89/pokedex/gitlog.txt)
+1. All git history was exported and available in [gitlog.txt](https://github.com/Bert89/pokedex/blob/main/gitlog.txt)
 2. In order to change communication protocol or improve microservices architecture, Protobuf models are already provided in solution. To use them instead the standard C# models, it is necessary to build them using the ***protoc*** executable included in Utils folder. <br> **NOTE: The old models will be replaced with the new ones**. <br> Run the command from 'Pokedex' folder: 
 ```sh
 ..\Utils\protoc.exe --csharp_out=./Models --proto_path=./proto ./proto/*.proto
