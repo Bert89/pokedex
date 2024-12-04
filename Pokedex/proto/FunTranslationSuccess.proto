@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package Pokedex.Models;
+
+message FunTranslationSuccess {
+    int32 total = 1;
+}

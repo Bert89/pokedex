@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package Pokedex.Models;
+
+message ErrorResponse {
+    string message = 1;
+    string details = 2;
+}

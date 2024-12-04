@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package Pokedex.Models;
+
+import "FunTranslationSuccess.proto";
+import "FunTranslationContents.proto";
+
+message FunTranslationResponse {
+    FunTranslationContents contents = 1;
+    FunTranslationSuccess success = 2;
+}

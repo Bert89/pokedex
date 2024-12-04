@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+package Pokedex.Models;
+
+message FunTranslationContents {
+    string translated = 1;
+    string text = 2;
+    string translation = 3;
+}

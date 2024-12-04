@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package Pokedex.Models;
+
+message PokemonModel {
+    string name = 1;
+    string description = 2;
+    string habitat = 3;
+    bool is_legendary = 4;
+    string error = 5;
+}
