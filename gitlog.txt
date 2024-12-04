@@ -1,0 +1,65 @@
+commit 7466b91623cad93cefda8cf9673ceead6534659d
+Author: Marco Bertan <marco.bertan@emerson.com>
+Date:   Wed Dec 4 15:13:55 2024 +0100
+
+    Added license file and readme, moved dockerfile
+
+commit 402a3d4b59036ab8e38cd59b61535993c3144223
+Author: Marco Bertan <marco.bertan@emerson.com>
+Date:   Wed Dec 4 09:46:48 2024 +0100
+
+    Added proto models and protoc util file
+
+commit e21d17b36938079468a8644a1fc9d9a17017b1d9
+Author: Marco Bertan <marco.bertan@emerson.com>
+Date:   Tue Dec 3 13:04:09 2024 +0100
+
+    Added Controller unit tests
+
+commit 3715e4d567559c22ffba01575b0408169ce0ab05
+Author: Marco Bertan <marco.bertan@emerson.com>
+Date:   Tue Dec 3 12:43:14 2024 +0100
+
+    Added unit tests
+
+commit e538527257ad23bcc4558b490bf40025f988ce51
+Author: Marco Bertan <marco.bertan@emerson.com>
+Date:   Tue Dec 3 12:14:14 2024 +0100
+
+    Added DistributedCache mechanism and updated tests
+
+commit eb9ffe92da5dfdf4d438d00ae55032cc10fdf271
+Author: Marco Bertan <marco.bertan@emerson.com>
+Date:   Tue Dec 3 12:13:03 2024 +0100
+
+    Fixed YodaTranslatorService name
+
+commit e527cc3b63a55c3ff02b62bbf4b88b7375fc41c3
+Author: Marco Bertan <marco.bertan@emerson.com>
+Date:   Tue Dec 3 00:15:55 2024 +0100
+
+    Implemented GetTranslatedPokemonAsync, added TranslatorFactory and unit tests
+
+commit 370d94166722d8bfdddd29f610132e38445294a3
+Author: Marco Bertan <marco.bertan@emerson.com>
+Date:   Mon Dec 2 18:35:37 2024 +0100
+
+    Added some unit tests and doc
+
+commit 5884db1e3df7f9ec643ee3f49d5a80ace39e8401
+Author: Marco Bertan <marco.bertan@emerson.com>
+Date:   Mon Dec 2 17:46:28 2024 +0100
+
+    Added PokemonApiClient wrapper and implemented GetPokemonAsync
+
+commit ac68b59c7369d617c685927817d51393e2b6a2be
+Author: Marco Bertan <marco.bertan@emerson.com>
+Date:   Mon Dec 2 16:45:19 2024 +0100
+
+    Added controllers, models and services
+
+commit 6556a93cd2257d9ac38a1f33db86c79ae218fff7
+Author: Marco <marco.bertan89@gmail.com>
+Date:   Mon Dec 2 16:20:38 2024 +0100
+
+    Initial commit
